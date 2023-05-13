@@ -1,9 +1,9 @@
-import { providers, Wallet } from 'ethers'
+import { ethers, providers, Wallet } from 'ethers'
 import { FlashbotsBundleProvider } from '@flashbots/ethers-provider-bundle'
 import 'dotenv/config'
 
 const CHAIN_ID = 5
-const provider = new providers.InfuraProvider(CHAIN_ID)
+const provider = new providers.InfuraProvider(CHAIN_ID, process.env.RPC_URL)
 
 const FLASHBOTS_ENDPOINT = 'https://relay-goerli.flashbots.net'
 
@@ -20,40 +20,39 @@ const ETHER = 10n ** 18n
 async function main() {
   const flashbotsProvider = await FlashbotsBundleProvider.create(
     provider,
-    Wallet.createRandom(),
+    Wallet.createRandom(), // TODO: use some other new wallet
     FLASHBOTS_ENDPOINT
   )
-  provider.on('block', async (blockNumber) => {
-    console.log(blockNumber)
 
-    const bundleSubmitResponse = await flashbotsProvider.sendBundle(
-      [
-        {
-          transaction: {
-            chainId: CHAIN_ID,
-            type: 2,
-            value: (ETHER / 100n) * 3n,
-            data: '0x1249c58b',
-            maxFeePerGas: GWEI * 3n,
-            maxPriorityFeePerGas: GWEI * 2n,
-            to: '0x20EE855E43A7af19E407E39E5110c2C1Ee41F64D'
-          },
-          signer: wallet
-        }
-      ],
-      blockNumber + 1
-    )
+  const block = await provider.getBlockNumber()
+  const bundleBlock = block + 5
+  console.log(`block: ${block}, bundleBlock: ${bundleBlock}`)
 
-    // By exiting this function (via return) when the type is detected as a
-    // "RelayResponseError", TypeScript recognizes bundleSubmitResponse must be a
-    // success type object (FlashbotsTransactionResponse) after the if block.
-    if ('error' in bundleSubmitResponse) {
-      console.warn(bundleSubmitResponse.error.message)
-      return
-    }
+  const bundleSubmitResponse = await flashbotsProvider.sendBundle(
+    [
+      {
+        transaction: {
+          chainId: CHAIN_ID,
+          type: 2,
+          value: ethers.utils.parseEther('0.03'),
+          to: '0x20EE855E43A7af19E407E39E5110c2C1Ee41F64D',
+          data: '0x1249c58b', // calldata for mint()
+          maxFeePerGas: ethers.utils.parseUnits('4', 'gwei'),
+          maxPriorityFeePerGas: ethers.utils.parseUnits('3', 'gwei')
+        },
+        signer: wallet
+      }
+    ],
+    bundleBlock
+  )
 
-    console.log(await bundleSubmitResponse.simulate())
-  })
+  if ('error' in bundleSubmitResponse) {
+    console.warn(bundleSubmitResponse.error.message)
+    return
+  }
+
+  console.log(await bundleSubmitResponse.simulate())
+  console.log(await bundleSubmitResponse.receipts())
 }
 
 main()
