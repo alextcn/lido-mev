@@ -1,0 +1,23 @@
+{
+  "name": "lido-mev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.6.2",
+    "ts-node": "^10.2.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.8.3"
+  },
+  "dependencies": {
+    "@flashbots/ethers-provider-bundle": "0.6.1",
+    "dotenv": "^16.0.3",
+    "ethers": "5.7.2"
+  }
+}
