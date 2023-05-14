@@ -11,10 +11,10 @@ const FLASHBOTS_BUILDER_ENDPOINT = 'https://relay.flashbots.net'
 
 // list of builders for sending bundle to increase a chance
 const BUILDERS = [
-  // { url: 'https://relay.flashbots.net', simulate: true }
-  // { url: 'https://rpc.beaverbuild.org/', simulate: false },
-  // { url: 'https://builder0x69.io', simulate: false },
-  // { url: 'https://rsync-builder.xyz', simulate: false }
+  { url: 'https://relay.flashbots.net', simulate: true },
+  { url: 'https://rpc.beaverbuild.org/', simulate: false },
+  { url: 'https://builder0x69.io', simulate: false },
+  { url: 'https://rsync-builder.xyz', simulate: false }
 ]
 
 if (process.env.WALLET_PRIVATE_KEY === undefined) {
