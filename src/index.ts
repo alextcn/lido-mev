@@ -2,12 +2,8 @@ import { ethers, providers, Wallet } from 'ethers'
 import { FlashbotsBundleProvider } from '@flashbots/ethers-provider-bundle'
 import 'dotenv/config'
 
-// const CHAIN_ID = 5
 const CHAIN_ID = 1
 const provider = new providers.InfuraProvider(CHAIN_ID, process.env.RPC_URL)
-
-// const BUILDER_ENDPOINTS_GOERLI = ['https://relay-goerli.flashbots.net']
-const FLASHBOTS_BUILDER_ENDPOINT = 'https://relay.flashbots.net'
 
 // list of builders for sending bundle to increase a chance
 const BUILDERS = [
