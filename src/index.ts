@@ -31,9 +31,17 @@ async function main() {
   console.log(`wallet: ${wallet.address}, signer: ${authSigner.address}`)
 
   const block = await provider.getBlockNumber()
-  const bundleBlock = block + 10
+  const bundleBlock = block + 5
   console.log(`block: ${block}, bundleBlock: ${bundleBlock}`)
 
+  // // read sent bundle
+  // const res = await flashbotsProvider.getBundleStats(
+  //   '0x349998384b43acf725e1d169ab2a555f4fc12839e0313e7afea9dee5c7bb3031',
+  //   17258179
+  // )
+  // console.log(`bundle stats: ${JSON.stringify(res)}`)
+
+  send bundle
   const bundleSubmitResponse = await flashbotsProvider.sendBundle(
     [
       {
@@ -49,10 +57,10 @@ async function main() {
         transaction: {
           chainId: CHAIN_ID,
           type: 2,
-          value: ethers.utils.parseEther('0.000024'),
+          value: ethers.utils.parseEther('0.00000024'),
           to: '0xaAaaa0cf858828c5dA523acdeAD993AB13007EA7',
           maxFeePerGas: ethers.utils.parseUnits('100', 'gwei'),
-          maxPriorityFeePerGas: ethers.utils.parseUnits('24', 'gwei')
+          maxPriorityFeePerGas: ethers.utils.parseUnits('12', 'gwei')
         },
         signer: wallet
       }
