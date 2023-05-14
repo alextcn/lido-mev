@@ -16,7 +16,7 @@
     "typescript": "^4.8.3"
   },
   "dependencies": {
-    "@flashbots/ethers-provider-bundle": "0.6.1",
+    "@flashbots/ethers-provider-bundle": "git+https://github.com/jackqack/ethers-provider-flashbots-bundle.git",
     "dotenv": "^16.0.3",
     "ethers": "5.7.2"
   }

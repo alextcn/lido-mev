@@ -7,14 +7,14 @@ const CHAIN_ID = 1
 const provider = new providers.InfuraProvider(CHAIN_ID, process.env.RPC_URL)
 
 // const BUILDER_ENDPOINTS_GOERLI = ['https://relay-goerli.flashbots.net']
+const FLASHBOTS_BUILDER_ENDPOINT = 'https://relay.flashbots.net'
 
 // list of builders for sending bundle to increase a chance
 const BUILDER_ENDPOINTS = [
-  'https://builder0x69.io', // buildHash null error
+  'https://builder0x69.io',
   // 'https://rpc.beaverbuild.org', // SERVER_ERROR response, 403 Forbidden
-  // 'https://relay.flashbots.net',
-  // 'https://rsync-builder.xyz' // buildHash null error,
-  // 'https://rpc.titanbuilder.xyz'
+  'https://relay.flashbots.net',
+  'https://rsync-builder.xyz'
 ]
 
 if (process.env.WALLET_PRIVATE_KEY === undefined) {
@@ -77,9 +77,12 @@ async function main() {
         return
       }
 
-      // simulate not supported by many builders
-      // console.log(`[${key}]`, await bundleResponse.simulate())
-      console.log(`[${key}]`, bundleResponse)
+      // simulate only supported by Flashbots builder
+      if (key === FLASHBOTS_BUILDER_ENDPOINT) {
+        console.log(`[${key}]`, await bundleResponse.simulate())
+      } else {
+        console.log(`[${key}]`, bundleResponse)
+      }
 
       submittions++
     })
