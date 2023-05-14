@@ -3,8 +3,9 @@ import { impersonateAccount } from '@nomicfoundation/hardhat-network-helpers'
 
 async function main() {
   const Lido2Life = await ethers.getContractFactory('Lido2Life')
-  const lido2life = await Lido2Life.deploy()
 
+  // deploy
+  const lido2life = await Lido2Life.deploy()
   await lido2life.deployed()
   console.log(`Lido2Life has been deployed to: ${lido2life.address}`)
 
@@ -34,15 +35,24 @@ async function main() {
   console.log('New timestamp: ', blockAfter.timestamp)
 
   console.log(`Executing vote...`)
-  await (
-    await lido2life.go({
-      gasLimit: 10000000
-    })
-  ).wait()
+  await lido2life.mint({
+    gasLimit: 10000000
+  })
   console.log('VOTED!')
 
   const balanceAfter = await steth.balanceOf(lido2life.address)
-  console.log('stETH balance of Lido2Life after vote:', ethers.utils.formatUnits(balanceAfter, 18), 'stETH')
+  console.log(
+    'stETH balance of Lido2Life after vote:',
+    ethers.utils.formatUnits(balanceAfter, 18),
+    'stETH'
+  )
+
+  const lidoWithdrawal = await ethers.getContractAt(
+    'IWithdrawalQueueERC721',
+    '0x889edC2eDab5f40e902b864aD4d7AdE8E412F9B1'
+  )
+  const nftBalance = await lidoWithdrawal.balanceOf('0x0a24f077377F2d555D6Dcc7cAEF68b3568fbac1D')
+  console.log('NFT balance of ac1d:', nftBalance.toString())
 }
 
 main().catch((error) => {
