@@ -10,11 +10,11 @@ const provider = new providers.InfuraProvider(CHAIN_ID, process.env.RPC_URL)
 const FLASHBOTS_BUILDER_ENDPOINT = 'https://relay.flashbots.net'
 
 // list of builders for sending bundle to increase a chance
-const BUILDER_ENDPOINTS = [
-  'https://builder0x69.io',
-  // 'https://rpc.beaverbuild.org', // SERVER_ERROR response, 403 Forbidden
-  'https://relay.flashbots.net',
-  'https://rsync-builder.xyz'
+const BUILDERS = [
+  // { url: 'https://relay.flashbots.net', simulate: true }
+  // { url: 'https://rpc.beaverbuild.org/', simulate: false },
+  // { url: 'https://builder0x69.io', simulate: false },
+  // { url: 'https://rsync-builder.xyz', simulate: false }
 ]
 
 if (process.env.WALLET_PRIVATE_KEY === undefined) {
@@ -30,18 +30,16 @@ if (process.env.AUTH_SIGNER_KEY === undefined) {
 async function main() {
   const wallet = new Wallet(process.env.WALLET_PRIVATE_KEY, provider)
   const authSigner = new Wallet(process.env.AUTH_SIGNER_KEY)
-  console.log(`wallet: ${wallet.address}, signer: ${authSigner.address}`)
+  console.log(`wallet: ${wallet.address}\nsigner: ${authSigner.address}`)
 
   // TODO: make any provider connection can fail safe
   const flashbotsProviders = await Promise.all(
-    BUILDER_ENDPOINTS.map((endpoint) =>
-      FlashbotsBundleProvider.create(provider, authSigner, endpoint)
-    )
+    BUILDERS.map((builder) => FlashbotsBundleProvider.create(provider, authSigner, builder.url))
   )
 
   const block = await provider.getBlockNumber()
   const bundleBlock = block + 5
-  console.log(`block: ${block}, bundleBlock: ${bundleBlock}`)
+  console.log(`block: ${block}\nbundleBlock: ${bundleBlock},\n------------------`)
 
   // // read sent bundle
   // const res = await flashbotsProvider.getBundleStats(
@@ -70,24 +68,28 @@ async function main() {
   await Promise.all(
     flashbotsProviders.map(async (provider) => {
       const key = provider.connection.url
-      const bundleResponse = await provider.sendBundle(bundleTransactions, bundleBlock)
+      try {
+        const bundleResponse = await provider.sendBundle(bundleTransactions, bundleBlock)
 
-      if ('error' in bundleResponse) {
-        console.warn(`[${key}]`, bundleResponse.error.message)
-        return
-      }
+        if ('error' in bundleResponse) {
+          console.warn(`❌ [${key}]`, bundleResponse.error.message)
+          return
+        }
 
-      // simulate only supported by Flashbots builder
-      if (key === FLASHBOTS_BUILDER_ENDPOINT) {
-        console.log(`[${key}]`, await bundleResponse.simulate())
-      } else {
-        console.log(`[${key}]`, bundleResponse)
+        // simulate only for supported builders
+        if (BUILDERS.find((b) => b.url === key)?.simulate) {
+          console.log(`✅ [${key}]`, await bundleResponse.simulate())
+        } else {
+          console.log(`✅ [${key}]`, bundleResponse.bundleTransactions)
+        }
+      } catch (e) {
+        console.error(`❌ [${key}]`, e.message)
       }
 
       submittions++
     })
   )
-  console.log(`bundle sent to ${submittions}/${flashbotsProviders.length} providers`)
+  console.log(`bundle sent to ${submittions}/${BUILDERS.length} builders`)
 
   // const bundleSubmitResponse = await flashbotsProviders[0].sendBundle(
   //   bundleTransactions,
