@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/index.ts"
+    "send": "ts-node src/send.ts",
+    "simulate": "ts-node src/simulate.ts"
   },
   "author": "",
   "license": "ISC",
