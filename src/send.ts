@@ -7,12 +7,20 @@ import { predictBlockNumber } from './utils'
 const CHAIN_ID = 1
 const provider = new providers.InfuraProvider(CHAIN_ID, process.env.RPC_URL)
 
-// list of builders for sending bundle to increase a chance
+// list of builders
 const BUILDERS = [
   { url: 'https://relay.flashbots.net', simulate: true },
   { url: 'https://rpc.beaverbuild.org/', simulate: false },
   { url: 'https://builder0x69.io', simulate: false },
-  { url: 'https://rsync-builder.xyz', simulate: false }
+  { url: 'https://rsync-builder.xyz', simulate: false },
+  { url: 'https://api.blocknative.com/v1/auction', simulate: true },
+  { url: 'https://eth-builder.com', simulate: false },
+  { url: 'https://buildai.net', simulate: false },
+  { url: 'https://builder.gmbit.co/rpc', simulate: false },
+  { url: 'https://rpc.lightspeedbuilder.info', simulate: false },
+  { url: 'https://rpc.payload.de', simulate: false },
+  { url: 'https://rpc.titanbuilder.xyz', simulate: false }
+  // { url: 'https://mev.api.blxrbdn.com', simulate: true }, // required custom RPC format
 ]
 
 if (process.env.WALLET_PRIVATE_KEY === undefined) {
@@ -92,6 +100,8 @@ async function main() {
     BUILDERS.map((builder) => FlashbotsBundleProvider.create(provider, authSigner, builder.url))
   )
 
+  // prepare params
+  const targetTime = 1684160220 // TODO: set LIDO_VOTE_TIME
   const txs = [
     {
       transaction: SEND_ETH_TX,
@@ -102,7 +112,6 @@ async function main() {
       signer: wallet
     }
   ]
-  const targetTime = 1684155900 // TODO: set LIDO_VOTE_TIME
 
   let sent = false
   provider.on('block', async (latestBlockNumber) => {
@@ -119,7 +128,7 @@ async function main() {
         `⌛ Latest block: ${latestBlockNumber}, latest time: ${latestTime}, target time: ${targetTime}`
       )
       console.log(
-        `🎯 Target block: [${targetBlock}], blocks between: ${
+        `🎯 Target block: ${targetBlock}, blocks between: ${
           targetBlock - latestBlockNumber
         }, time between: ${targetTime - latestTime}`
       )
