@@ -62,17 +62,15 @@ async function sendBundle({
   provider,
   key,
   txs,
-  block,
-  minTimestamp
+  block
 }: {
   provider: FlashbotsBundleProvider
   key: string
   txs: FlashbotsBundleTransaction[]
   block: number
-  minTimestamp?: number
 }) {
   try {
-    const bundleResponse = await provider.sendBundle(txs, block, { minTimestamp })
+    const bundleResponse = await provider.sendBundle(txs, block)
 
     if ('error' in bundleResponse) {
       console.warn(`❌ [${key}]`, bundleResponse.error.message)
