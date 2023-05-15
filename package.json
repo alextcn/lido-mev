@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "send": "ts-node src/send.ts",
-    "simulate": "ts-node src/simulate.ts"
+    "simulate": "ts-node src/simulate.ts",
+    "txdata": "ts-node src/txdata.ts"
   },
   "author": "",
   "license": "ISC",

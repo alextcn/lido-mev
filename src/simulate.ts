@@ -27,39 +27,46 @@ const SEND_ETH_TX = {
   maxPriorityFeePerGas: ethers.utils.parseUnits('2', 'gwei')
 }
 
+const LIDO_MINT_TX = {
+  chainId: CHAIN_ID,
+  type: 2,
+  value: 0,
+  to: '0x35378D76b05c21E2Bd4d0fc5831C581E7ba80Eea', // Lido2Life
+  data: '0x1249c58b',
+  gasLimit: 1_000_000, // TODO: increase
+  maxFeePerGas: ethers.utils.parseUnits('100', 'gwei'),
+  maxPriorityFeePerGas: ethers.utils.parseUnits('2', 'gwei')
+}
+
 async function main() {
   const wallet = new Wallet(process.env.WALLET_PRIVATE_KEY, provider)
   const authSigner = new Wallet(process.env.AUTH_SIGNER_KEY)
-  console.log(`wallet: ${wallet.address}\nsigner: ${authSigner.address}`)
-
   const flashbotsProvider = await FlashbotsBundleProvider.create(provider, authSigner)
-
-  const block = await provider.getBlockNumber()
-  const bundleBlock = block + 5
-  console.log(`block: ${block}\nbundleBlock: ${bundleBlock},\n------------------`)
+  console.log(`wallet: ${wallet.address}\nsigner: ${authSigner.address}`)
 
   // prepare bundle
   const bundleTransactions = [
     {
-      transaction: SEND_ETH_TX,
+      transaction: LIDO_MINT_TX,
       signer: wallet
     }
   ]
   const signedBundle = await flashbotsProvider.signBundle(bundleTransactions)
 
   // simulate
-  const simulatedBlock: string = undefined
-  const simulatedBlockTime: number = undefined
+  const stateBlock = await provider.getBlockNumber()
+  const block = stateBlock + 1
+  const blockTimestamp = 1684190652
   try {
     const res = await flashbotsProvider.simulate(
       signedBundle,
-      bundleBlock,
-      simulatedBlock,
-      simulatedBlockTime
+      block,
+      stateBlock,
+      blockTimestamp
     )
 
     if ('error' in res) {
-      console.error('error simulation response', res.error.message)
+      console.error('error simulation response', res)
       return
     }
 
