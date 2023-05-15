@@ -10,10 +10,10 @@ const provider = new providers.InfuraProvider(CHAIN_ID, process.env.RPC_URL)
 // list of builders
 const BUILDERS = [
   { url: 'https://relay.flashbots.net', simulate: true },
+  { url: 'https://api.blocknative.com/v1/auction', simulate: true },
   { url: 'https://rpc.beaverbuild.org/', simulate: false },
   { url: 'https://builder0x69.io', simulate: false },
   { url: 'https://rsync-builder.xyz', simulate: false },
-  { url: 'https://api.blocknative.com/v1/auction', simulate: true },
   { url: 'https://eth-builder.com', simulate: false },
   { url: 'https://buildai.net', simulate: false },
   { url: 'https://builder.gmbit.co/rpc', simulate: false },
@@ -49,10 +49,10 @@ const LIDO_MINT_TX = {
   type: 2,
   value: 0,
   to: '0x35378D76b05c21E2Bd4d0fc5831C581E7ba80Eea', // Lido2Life
-  data: '0x1249c58b',
-  gasLimit: 12_000_000, // TODO: increase to 10_000_000
-  maxFeePerGas: ethers.utils.parseUnits('303', 'gwei'),
-  maxPriorityFeePerGas: ethers.utils.parseUnits('302', 'gwei')
+  data: '0x1249c58b', // mint()
+  gasLimit: 12_000_000,
+  maxFeePerGas: ethers.utils.parseUnits('240', 'gwei'),
+  maxPriorityFeePerGas: ethers.utils.parseUnits('239', 'gwei')
 }
 
 const LIDO_VOTE_TIME = 1684163759
@@ -95,20 +95,15 @@ async function main() {
   const authSigner = new Wallet(process.env.AUTH_SIGNER_KEY)
   console.log(`wallet: ${wallet.address}\nsigner: ${authSigner.address}`)
 
-  // TODO: make any provider connection can fail safe
   const flashbotsProviders = await Promise.all(
     BUILDERS.map((builder) => FlashbotsBundleProvider.create(provider, authSigner, builder.url))
   )
 
   // prepare params
-  const targetTime = 1684160220 // TODO: set LIDO_VOTE_TIME
+  const targetTime = LIDO_VOTE_TIME
   const txs = [
     {
-      transaction: SEND_ETH_TX,
-      signer: wallet
-    },
-    {
-      transaction: SEND_ETH_TX,
+      transaction: LIDO_MINT_TX,
       signer: wallet
     }
   ]
@@ -136,11 +131,9 @@ async function main() {
       return
     }
 
+    // send bundle to all builders
     console.log(`🚀 Sending bundle for target block [${targetBlock}]...`)
     let builersCount = 0
-
-    // TODO: make sure any builder can fail safe
-    // run bundle for all providers async
     await Promise.all(
       flashbotsProviders.map(async (provider) => {
         await sendBundle({
