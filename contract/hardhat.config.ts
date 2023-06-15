@@ -14,6 +14,9 @@ const config: HardhatUserConfig = {
     localhost: {
       timeout: 100000
     }
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY!
   }
 }
 
