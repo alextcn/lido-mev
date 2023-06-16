@@ -25,16 +25,16 @@ contract Lido2Life {
         lidoVoting = ILidoVoting(LIDO_VOTING_ADDRESS);
         lidoWithdrawal = IWithdrawalQueueERC721(LIDO_WITHDRAWAL_ADDRESS);
         STETH = IStETH(STETH_ADDRESS);
-        STETH.approve(LIDO_WITHDRAWAL_ADDRESS, 124 ether);
+        STETH.approve(LIDO_WITHDRAWAL_ADDRESS, 124 ether); // requestWithdrawals call requires allowance
     }
 
     // stETH must be sent to the contract before calling this method
     // active timestamp: 1684163759 = 1683904559 (vote 156 start date) + 259200 (voteTime)
     function mint() external {
-        if (hasMinted) revert("Already minted"); // if bot send after minting
+        if (hasMinted) revert("Already minted");
 
         (bool open,,,,,,,,) = lidoVoting.getVote(VOTE_ID);
-        if (open) revert("Vote is still open"); // if sent earlier than needed
+        if (open) revert("Vote is still open"); // if tx sent too early
 
         // executes vote if no one else did
         if (lidoVoting.canExecute(VOTE_ID)) {
