@@ -19,7 +19,8 @@ const BUILDERS = [
   { url: 'https://builder.gmbit.co/rpc', simulate: false },
   { url: 'https://rpc.lightspeedbuilder.info', simulate: false },
   { url: 'https://rpc.payload.de', simulate: false },
-  { url: 'https://rpc.titanbuilder.xyz', simulate: false }
+  { url: 'https://rpc.titanbuilder.xyz', simulate: false },
+  { url: 'https://rpc.lokibuilder.xyz', simulate: false }
   // { url: 'https://mev.api.blxrbdn.com', simulate: true }, // required custom RPC format
 ]
 
